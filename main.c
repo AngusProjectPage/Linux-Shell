@@ -13,19 +13,21 @@ void loop_shell() {
     char buffer[BUFFER_SIZE], *exit, *token;
     char delim[] = " "; // Each token to be split by whitespace 
     char cwd[256];
+    char *c;
     getcwd(cwd, 256);
     do {
         printf("%s>>> ", cwd);
-        fgets(buffer, BUFFER_SIZE, stdin);
-        if(buffer[strlen(buffer) - 1] != '\n') {
-            while(getchar() != '\n');
-            printf("input should not exceed 5 characters, try again\n");
+        char* t;
+        t = fgets(buffer, BUFFER_SIZE, stdin);
+        if(buffer[strlen(buffer) - 1] != '\n' && !feof(stdin)) {
+            char c;
+            while(c = getchar() != '\n' && c != EOF);
+            printf("input should not exceed 512 characters, try again\n");
         }
         else {
             if(!feof(stdin)) {
                 token = strtok(buffer, delim);
                 while(token != NULL) {
-                    printf("%s", token);
                     token = strtok(NULL, delim);
                 }
             } else {
@@ -34,7 +36,6 @@ void loop_shell() {
         }
     } while(strcmp(buffer, "quit\n") != 0); // strcmp returns 0 when it's two string are equal
 }
-
 
 
 
