@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 //Find the user home directory from the environment
 //Set current working directory to user home directory
 //Save the current path
