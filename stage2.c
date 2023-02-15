@@ -9,6 +9,7 @@
 #define BUFFER_SIZE 512
 char buffer[BUFFER_SIZE], *token;
 int main(int argc, char **argv) {
+    setenv("PATH","/bin",0);
     loop_shell();
     return 0;
 }
@@ -32,7 +33,6 @@ void display(){
 
 int start_fork() {
     char *arguments[50];
-    read_parse(arguments); 
     pid_t pid;
     pid = fork();
     if(pid < 0) {
@@ -40,7 +40,11 @@ int start_fork() {
         return 1;
     }
     else if (pid == 0) { /* Child Process */ 
-        execvp(arguments[0],arguments);
+        read_parse(arguments); 
+        if (execvp(arguments[0], arguments) < 0) {     /* execute the command  */
+            printf("*** ERROR: exec failed\n");
+            exit(1);
+        }
     }
     else { /* parent process */
         /* parent will wait for the child process to complete*/
@@ -65,9 +69,9 @@ void read_parse(char** arguments){
         else {
                 char *token = strtok(buffer, delim);
                 while(token != NULL) {
-                    token = strtok(NULL, delim);
                     arguments[i] = malloc(strlen(token) + 1);
                     arguments[i] = token;
+                    token = strtok(NULL, delim);
                     i++;
                 }
                 arguments[i] = NULL;
