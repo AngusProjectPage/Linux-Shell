@@ -2,22 +2,41 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "main.h"
 
 #define BUFFER_SIZE 512
-void loop_shell();
-void main(int argc, char **argv) {
+char buffer[BUFFER_SIZE], *token;
+int main(int argc, char **argv) {
     loop_shell();
+    return 0;
 }
 
-void loop_shell() {
-    char buffer[BUFFER_SIZE], *exit, *token;
-    char delim[] = " "; // Each token to be split by whitespace 
+void display(){
     char cwd[256];
-    char *c;
     getcwd(cwd, 256);
-    do {
-        printf("%s>>> ", cwd);
-        char* t;
+    printf("%s>>> ", cwd);
+}
+
+
+
+void loop_shell() {
+
+    do{
+        display();
+        read_parse();
+        if(feof(stdin)){
+            break;
+        }
+
+    } while(strcmp(buffer, "quit\n") != 0 );
+}
+
+void read_parse(){
+   
+    char delim[] = " "; // Each token to be split by whitespace 
+    
+    char *c;
+    char* t;
         t = fgets(buffer, BUFFER_SIZE, stdin);
         if(buffer[strlen(buffer) - 1] != '\n' && !feof(stdin)) {
             char c;
@@ -25,17 +44,14 @@ void loop_shell() {
             printf("input should not exceed 512 characters, try again\n");
         }
         else {
-            if(!feof(stdin)) {
+            
                 token = strtok(buffer, delim);
                 while(token != NULL) {
                     token = strtok(NULL, delim);
                 }
-            } else {
-                break;
-            }
+            } 
         }
-    } while(strcmp(buffer, "quit\n") != 0); // strcmp returns 0 when it's two string are equal
-}
+    
 
 
 
