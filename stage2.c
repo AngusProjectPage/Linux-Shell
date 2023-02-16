@@ -9,7 +9,6 @@
 #define BUFFER_SIZE 512
 char buffer[BUFFER_SIZE], *token;
 int main(int argc, char **argv) {
-    setenv("PATH","/bin",0);
     loop_shell();
     return 0;
 }
@@ -32,7 +31,7 @@ void display(){
 }
 
 int start_fork() {
-    char *arguments[50];
+    char *arguments[50] = {0};
     pid_t pid;
     pid = fork();
     if(pid < 0) {
@@ -49,7 +48,7 @@ int start_fork() {
     else { /* parent process */
         /* parent will wait for the child process to complete*/
         wait(NULL);
-        printf("Child complete");
+        printf("Child complete\n");
         return 0;
     }
 }
@@ -59,7 +58,6 @@ void read_parse(char** arguments){
     char delim[] = " "; // Each token to be split by whitespace 
     char *c;
     char *t;
-    int i = 0;
         t = fgets(buffer, BUFFER_SIZE, stdin);
         if(buffer[strlen(buffer) - 1] != '\n' && !feof(stdin)) {
             char c;
@@ -67,15 +65,16 @@ void read_parse(char** arguments){
             printf("input should not exceed 512 characters, try again\n");
         }
         else {
-                char *token = strtok(buffer, delim);
-                while(token != NULL) {
-                    arguments[i] = malloc(strlen(token) + 1);
-                    arguments[i] = token;
-                    token = strtok(NULL, delim);
-                    i++;
-                }
-                arguments[i] = NULL;
-            } 
+            int i = 0;
+            char *token = strtok(buffer, delim);
+            while(token != NULL && i < 49) {
+                arguments[i] = malloc(strlen(token)+1);
+                strcpy(arguments[i], token);
+                token = strtok(NULL, delim);
+                i++;
+            }
+            arguments[i] = NULL;
+        } 
     }
     
 

@@ -10,7 +10,6 @@
 char buffer[BUFFER_SIZE], *token;
 
 int main(int argc, char **argv) {
-    setenv("PATH","/bin",0);
     loop_shell();
     return 0;
 }
