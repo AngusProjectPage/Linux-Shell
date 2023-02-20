@@ -7,6 +7,7 @@
 #include "main.h"
 
 #define BUFFER_SIZE 512
+char *arguments[50];
 char buffer[BUFFER_SIZE], *token;
 int main(int argc, char **argv) {
     loop_shell();
@@ -16,6 +17,7 @@ int main(int argc, char **argv) {
 void loop_shell() {
     do{
         display();
+        read_parse();
         start_fork();
         if(feof(stdin)){
             break;
@@ -30,32 +32,9 @@ void display(){
     printf("%s>>> ", cwd);
 }
 
-int start_fork() {
-    char *arguments[50] = {0};
-    pid_t pid;
-    pid = fork();
-    if(pid < 0) {
-        fprintf(stderr, "Fork Failed");
-        return 1;
-    }
-    else if (pid == 0) { /* Child Process */ 
-        read_parse(arguments); 
-        if (execvp(arguments[0], arguments) < 0) {     /* execute the command  */
-            printf("*** ERROR: exec failed\n");
-            exit(1);
-        }
-    }
-    else { /* parent process */
-        /* parent will wait for the child process to complete*/
-        wait(NULL);
-        printf("Child complete\n");
-        return 0;
-    }
-}
 
-void read_parse(char** arguments){
-   
-    char delim[] = " "; // Each token to be split by whitespace 
+void read_parse(){
+    char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace 
     char *c;
     char *t;
         t = fgets(buffer, BUFFER_SIZE, stdin);
@@ -68,7 +47,7 @@ void read_parse(char** arguments){
             int i = 0;
             char *token = strtok(buffer, delim);
             while(token != NULL && i < 49) {
-                arguments[i] = malloc(strlen(token)+1);
+                arguments[i] = malloc(strlen(token));
                 strcpy(arguments[i], token);
                 token = strtok(NULL, delim);
                 i++;
@@ -76,5 +55,30 @@ void read_parse(char** arguments){
             arguments[i] = NULL;
         } 
     }
+
+int start_fork() {
+    pid_t pid;
+    pid = fork();
+    if(pid < 0) {
+        fprintf(stderr, "Fork Failed");
+        return 1;
+    }
+    else if (pid == 0) { /* Child Process */  
+        if (execvp(arguments[0], arguments) < 0) {     /* execute the command  */
+            perror(arguments[0]);
+            exit(1);
+        }
+    }
+    else { /* parent process */
+        /* parent will wait for the child process to complete*/
+        wait(NULL);
+        printf("Child complete\n");
+        return 0;
+    }
+}
+
+
+
+
     
 
