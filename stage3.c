@@ -23,7 +23,7 @@ void loop_shell() {
             break;
         }
 
-    } while(strcmp(buffer, "quit") != 0 );
+    } while(strcmp(buffer, "exit") != 0 );
 }
 
 void display(){
@@ -65,7 +65,7 @@ int start_fork() {
     }
     else if (pid == 0) { /* Child Process */  
         if (execvp(arguments[0], arguments) < 0) {
-            if((strcmp(arguments[0], "quit"))) {
+            if((strcmp(arguments[0], "exit"))) {
                 perror(arguments[0]);
             }     /* execute the command  */
             exit(1);

@@ -8,12 +8,10 @@ void loop_shell();
 	void read_parse();
 //	While the command is a history invocation or alias then replace it with the
 //	appropriate command from history or the aliased command respectively
-//	If command is built-in invoke appropriate function
-//	Else execute command as an external process
-//End while
+	int start_fork();
 //Save history
 //Save aliases
 //Restore original path
 //Exit
 
-int start_fork();
+
