@@ -11,14 +11,12 @@ char *arguments[50];
 char buffer[BUFFER_SIZE], *token;
 char *envPath;
 char *homePath;
-char *currentPath;
 
 int main(int argc, char **argv) {
     envPath = getenv("PATH");
     homePath = getenv("HOME");
     if(homePath != NULL){
         chdir(homePath);
-        display();
     }
     else{
         printf("invalid");
@@ -32,14 +30,20 @@ void loop_shell() {
     do{
         display();
         read_parse();
-        if(feof(stdin)){
+        if(feof(stdin) || strcmp(arguments[0], "exit") == 0){
+            setenv("PATH", envPath, 1);
+            printf("%s\n", getenv("PATH"));
             break;
         } else if(strcmp(arguments[0], "getpath") == 0) {
-            printf("%s", getenv("PATH"));
+            if(arguments[2] != NULL) {
+                printf("Error: Function takes one parameter\n");
+            } else {
+                printf("%s\n", getenv(arguments[1]));
+            }
         } else if(strcmp(arguments[0], "setpath") == 0) {
-            //chdir(arguments[1]);
-        } else if(strcmp(arguments[0], "exit") == 0) {
-            //setenv(homePath);
+            if(setenv(arguments[1], arguments[2], 1) < 0) {
+                perror(arguments[0]);
+            } 
         } else {
             start_fork();
         }
@@ -86,10 +90,8 @@ int start_fork() {
     }
     else if (pid == 0) { /* Child Process */  
         if (execvp(arguments[0], arguments) < 0) {
-            if((strcmp(arguments[0], "exit"))) {
                 perror(arguments[0]);
-            }     /* execute the command  */
-            exit(1);
+                exit(1);
         }
     }
     else { /* parent process */
