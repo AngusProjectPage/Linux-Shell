@@ -16,7 +16,14 @@ char *currentPath;
 int main(int argc, char **argv) {
     envPath = getenv("PATH");
     homePath = getenv("HOME");
-    chdir(homePath);
+    if(homePath != NULL){
+        chdir(homePath);
+        display();
+    }
+    else{
+        printf("invalid");
+    }
+    
     loop_shell();
     return 0;
 }
