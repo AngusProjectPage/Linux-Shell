@@ -23,7 +23,7 @@ void loop_shell() {
             break;
         }
 
-    } while(strcmp(buffer, "quit\n") != 0 );
+    } while(strcmp(buffer, "quit") != 0 );
 }
 
 void display(){
@@ -64,15 +64,16 @@ int start_fork() {
         return 1;
     }
     else if (pid == 0) { /* Child Process */  
-        if (execvp(arguments[0], arguments) < 0) {     /* execute the command  */
-            perror(arguments[0]);
+        if (execvp(arguments[0], arguments) < 0) {
+            if((strcmp(arguments[0], "quit"))) {
+                perror(arguments[0]);
+            }     /* execute the command  */
             exit(1);
         }
     }
     else { /* parent process */
         /* parent will wait for the child process to complete*/
         wait(NULL);
-        printf("Child complete\n");
         return 0;
     }
 }
