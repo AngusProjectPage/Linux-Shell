@@ -15,3 +15,5 @@ void loop_shell();
 //Save aliases
 //Restore original path
 //Exit
+
+int start_fork();
