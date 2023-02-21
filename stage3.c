@@ -30,20 +30,30 @@ void loop_shell() {
     do{
         display();
         read_parse();
-        if(feof(stdin) || strcmp(arguments[0], "exit") == 0){
+        if(feof(stdin) || strcmp(arguments[0], "exit") == 0){ //<CTRL+D> OR "EXIT" to close shell
             setenv("PATH", envPath, 1);
             printf("%s\n", getenv("PATH"));
             break;
-        } else if(strcmp(arguments[0], "getpath") == 0) {
-            if(arguments[2] != NULL) {
-                printf("Error: Function takes one parameter\n");
-            } else {
-                printf("%s\n", getenv(arguments[1]));
-            }
+        } else if(strcmp(arguments[0], "getpath") == 0) { 
+                if(getenv(arguments[1]) == NULL) {
+                    fprintf(stderr, "Could not find evironment variable '%s'\n", arguments[1]);
+                } 
+                else if(arguments[2] != NULL) {
+                    printf("Too many arguments\n");
+                }
+                else {
+                    printf("%s\n", getenv(arguments[1]));
+                }
         } else if(strcmp(arguments[0], "setpath") == 0) {
-            if(setenv(arguments[1], arguments[2], 1) < 0) {
-                perror(arguments[0]);
-            } 
+                if(arguments[2] != NULL) {
+                    fprintf(stderr, "Function should take only one parameter\n");
+                } else if(access(arguments[1], F_OK == -1)) {
+                    fprintf(stderr, "Path '%s' does not exist\n", arguments[1]);
+                } else if(setenv("PATH", arguments[1], 1) == 0) {
+                    printf("Path is now %s\n", arguments[1]);
+                } else {
+                    fprintf(stderr, "Error occurred when setting path '%s'\n", arguments[1]);
+                }
         } else {
             start_fork();
         }
