@@ -9,7 +9,14 @@
 #define BUFFER_SIZE 512
 char *arguments[50];
 char buffer[BUFFER_SIZE], *token;
+char *envPath;
+char *homePath;
+char *currentPath;
+
 int main(int argc, char **argv) {
+    envPath = getenv("PATH");
+    homePath = getenv("HOME");
+    chdir(homePath);
     loop_shell();
     return 0;
 }
@@ -18,11 +25,18 @@ void loop_shell() {
     do{
         display();
         read_parse();
-        start_fork();
         if(feof(stdin)){
             break;
+        } else if(strcmp(arguments[0], "getpath") == 0) {
+            printf("%s", getenv("PATH"));
+        } else if(strcmp(arguments[0], "setpath") == 0) {
+            //chdir(arguments[1]);
+        } else if(strcmp(arguments[0], "exit") == 0) {
+            //setenv(homePath);
+        } else {
+            start_fork();
         }
-
+        free(*arguments);
     } while(strcmp(buffer, "exit") != 0 );
 }
 
