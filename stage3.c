@@ -8,11 +8,18 @@
 
 #define BUFFER_SIZE 512
 char *arguments[50];
-char buffer[BUFFER_SIZE], *token;
+char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
 
 int main(int argc, char **argv) {
+    home();
+    loop_shell();
+    return 0;
+}
+
+void home(){
+
     envPath = getenv("PATH");
     homePath = getenv("HOME");
     if(homePath != NULL){
@@ -21,11 +28,7 @@ int main(int argc, char **argv) {
     else{
         printf("invalid");
     }
-    
-    loop_shell();
-    return 0;
 }
-
 void loop_shell() {
     do{
         display();
@@ -36,7 +39,7 @@ void loop_shell() {
             break;
         } else if(strcmp(arguments[0], "getpath") == 0) { 
                 if(getenv(arguments[1]) == NULL) {
-                    fprintf(stderr, "Could not find evironment variable '%s'\n", arguments[1]);
+                    fprintf(stderr, "Could not find environment variable '%s'\n", arguments[1]);
                 } 
                 else if(arguments[2] != NULL) {
                     printf("Too many arguments\n");

@@ -1,5 +1,4 @@
-//Find the user home directory from the environment
-//Set current working directory to user home directory
+void home();
 //Save the current path
 //Load history
 //Load aliases
