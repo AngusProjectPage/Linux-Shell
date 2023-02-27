@@ -6,11 +6,17 @@
 #include <sys/wait.h>
 #include "main.h"
 
+typedef struct previousCommands {
+    char* String
+} previousCommands;
+
 #define BUFFER_SIZE 512
 char *arguments[50];
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
+previousCommands commands[20];
+
 
 int main(int argc, char **argv) {
     home();
