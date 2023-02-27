@@ -72,9 +72,9 @@ void parseInput() {
         printf("%s\n", getenv("PATH"));
     } else if(strcmp(arguments[0], "getpath") == 0) { 
             if(arguments[1] == NULL) {
-                //NEEDS FIXED
+                printf("Please specify path\n");
             }
-            if(getenv(arguments[1]) == NULL) {
+            else if(getenv(arguments[1]) == NULL) {
                 fprintf(stderr, "Could not find environment variable '%s'\n", arguments[1]);
             } 
             else if(arguments[2] != NULL) {
@@ -93,7 +93,8 @@ void parseInput() {
             } else {
                 fprintf(stderr, "Error occurred when setting path '%s'\n", arguments[1]);
             }
-    } else {
+    } 
+    else {
         startFork();
     }
 }
