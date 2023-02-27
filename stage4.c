@@ -93,25 +93,22 @@ void parseInput() {
             } else {
                 fprintf(stderr, "Error occurred when setting path '%s'\n", arguments[1]);
             }
-
-        if (strcmp(arguments[0],"cd")== 0) {
+    }
+       else if (strcmp(arguments[0],"cd")== 0) {
              if(arguments[1] == NULL){
                 home();
-
             }
             else if(access(arguments[1],F_OK != 0)){
                 perror("error");
-
+            }
+            else if(arguments[2] != NULL){
+                perror("Too many arguments");
             }
             else{
                 chdir(arguments[1]);
             }
-            if(arguments[2] != NULL){
-                perror("Too many arguments");
-            }
-
         }
-    } else {
+    else {
         startFork();
     }
 }
