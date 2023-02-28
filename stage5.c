@@ -7,7 +7,8 @@
 #include "main.h"
 
 typedef struct previousCommands {
-    char* String;
+    int commandNumber;
+    char* string;
 } previousCommands;
 
 #define BUFFER_SIZE 512
@@ -15,6 +16,7 @@ char *arguments[50];
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
+int commandCounter = 0;
 previousCommands commands[20];
 
 
@@ -39,7 +41,8 @@ void loop_shell() {
         free(*arguments);
         display();
         readInput();
-        parseInput();
+        char* command = parseInput();
+        trackHistory(command);
     } while(strcmp(arguments[0], "exit") != 0 );
 }
 
@@ -72,20 +75,33 @@ void readInput(){
         } 
     }
 
-void parseInput() {
+char* parseInput() {
     if(feof(stdin) || strcmp(arguments[0], "exit") == 0){ //<CTRL+D> OR "EXIT" to close shell
         setenv("PATH", envPath, 1);
         printf("%s\n", getenv("PATH"));
     } else if(strcmp(arguments[0], "getpath") == 0) { 
         getPath();
+        return "getpath";
     } else if(strcmp(arguments[0], "setpath") == 0) {
         setPath();
+        return "setpath";
     }
       else if (strcmp(arguments[0],"cd")== 0) {
         changeDirectory();
+        return "cd";
+    } else if(strcmp(arguments[0], "!?")) {
+            int indexNum = commandCounter-1 - 
+            arguments[0] = commands->commandNumber;
+            parseInput();
+        if(strcmp(arguments[0], "!!")) {
+            
+        } else {
+
+        }
     }
     else {
         startFork();
+        return "";
     }
 }
 
@@ -131,7 +147,20 @@ void changeDirectory() {
     }
 }
 
-
+void trackHistory(char* command) {
+    if(commandCounter % 20 != 0) {
+        for(int i=0; i<20; i++) {
+            if(command[i] != NULL) {
+                previousCommands newCommand;
+                newCommand.commandNumber = commandCounter+1;
+                newCommand.string = command;
+                command[i] = command;
+                break;
+            }
+        }
+    }
+    commandCounter++;
+}
 
 int startFork() {
     pid_t pid;
