@@ -1,5 +1,4 @@
 void home();
-//Save the current path
 //Load history
 //Load aliases
 void loop_shell();
@@ -8,6 +7,9 @@ void loop_shell();
 	void parseInput();
 //	While the command is a history invocation or alias then replace it with the
 //	appropriate command from history or the aliased command respectively
+	void getPath();
+	void setPath();
+	void changeDirectory();
 	int startFork();
 //Save history
 //Save aliases
