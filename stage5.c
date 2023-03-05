@@ -8,11 +8,12 @@
 
 typedef struct previousCommands {
     int commandNumber;
-    char* string;
+    char *string[50];
 } previousCommands;
 
 #define BUFFER_SIZE 512
 char *arguments[50];
+char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace 
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
@@ -36,13 +37,14 @@ void home(){
         printf("invalid");
     }
 }
+
 void loop_shell() {
     do{
-        free(*arguments);
         display();
         readInput();
-        char* command = parseInput();
-        trackHistory(command);
+        parseInput();
+        trackHistory();
+        free(*arguments);
     } while(strcmp(arguments[0], "exit") != 0 );
 }
 
@@ -53,7 +55,6 @@ void display(){
 }
 
 void readInput(){
-    char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace 
     char *c;
     char *t;
         t = fgets(buffer, BUFFER_SIZE, stdin);
@@ -75,33 +76,29 @@ void readInput(){
         } 
     }
 
-char* parseInput() {
+void  parseInput() {
     if(feof(stdin) || strcmp(arguments[0], "exit") == 0){ //<CTRL+D> OR "EXIT" to close shell
         setenv("PATH", envPath, 1);
         printf("%s\n", getenv("PATH"));
     } else if(strcmp(arguments[0], "getpath") == 0) { 
         getPath();
-        return "getpath";
     } else if(strcmp(arguments[0], "setpath") == 0) {
         setPath();
-        return "setpath";
-    }
-      else if (strcmp(arguments[0],"cd")== 0) {
+    } else if (strcmp(arguments[0], "cd")== 0) {
         changeDirectory();
-        return "cd";
-    } else if(strcmp(arguments[0], "!?")) {
-            int indexNum = commandCounter-1 - 
-            arguments[0] = commands->commandNumber;
-            parseInput();
-        if(strcmp(arguments[0], "!!")) {
-            
-        } else {
-
+    } else if(strcmp(arguments[0], "!!") == 0) {
+        int i = 0;
+        previousCommands command = commands[commandCounter % 20];
+        while(command.string[i] != NULL) {
+            arguments[i] = malloc(strlen(command.string[i]));
+            strcpy(arguments[i], command.string[i]);
+            i++;
         }
+        arguments[i] = NULL;
+        parseInput();
     }
     else {
         startFork();
-        return "";
     }
 }
 
@@ -147,18 +144,16 @@ void changeDirectory() {
     }
 }
 
-void trackHistory(char* command) {
-    if(commandCounter % 20 != 0) {
-        for(int i=0; i<20; i++) {
-            if(command[i] != NULL) {
-                previousCommands newCommand;
-                newCommand.commandNumber = commandCounter+1;
-                newCommand.string = command;
-                command[i] = command;
-                break;
-            }
-        }
+void trackHistory() {
+    previousCommands newCommand = commands[commandCounter % 20];
+    newCommand.commandNumber = commandCounter+1;
+    int i=0;
+    while(arguments[i] != NULL) {
+        newCommand.string[i] = malloc(strlen(arguments[i]));
+        strcpy(newCommand.string[i], arguments[i]);
+        i++;
     }
+    newCommand.string[i] = NULL;
     commandCounter++;
 }
 

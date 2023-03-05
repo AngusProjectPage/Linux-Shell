@@ -4,7 +4,7 @@ void home();
 void loop_shell();
 	void display();
 	void readInput();
-	char* parseInput();
+	void parseInput();
 	void trackHistory();
 //	While the command is a history invocation or alias then replace it with the
 //	appropriate command from history or the aliased command respectively
