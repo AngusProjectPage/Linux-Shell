@@ -44,7 +44,6 @@ void loop_shell() {
         readInput();
         parseInput();
         trackHistory();
-        free(*arguments);
     } while(strcmp(arguments[0], "exit") != 0 );
 }
 
@@ -76,7 +75,7 @@ void readInput(){
         } 
     }
 
-void  parseInput() {
+void parseInput() {
     if(feof(stdin) || strcmp(arguments[0], "exit") == 0){ //<CTRL+D> OR "EXIT" to close shell
         setenv("PATH", envPath, 1);
         printf("%s\n", getenv("PATH"));
@@ -87,15 +86,20 @@ void  parseInput() {
     } else if (strcmp(arguments[0], "cd")== 0) {
         changeDirectory();
     } else if(strcmp(arguments[0], "!!") == 0) {
-        int i = 0;
-        previousCommands command = commands[commandCounter % 20];
-        while(command.string[i] != NULL) {
-            arguments[i] = malloc(strlen(command.string[i]));
-            strcpy(arguments[i], command.string[i]);
-            i++;
-        }
+        if(commandCounter == 0) {
+            printf("No commands in history");
+        } else {
+            int i = 0;
+            previousCommands command = commands[(commandCounter-1) % 20];
+            while(command.string[i] != NULL) {
+                arguments[i] = malloc(strlen(command.string[i]));
+                strcpy(arguments[i], command.string[i]);
+                i++;
+            }
         arguments[i] = NULL;
         parseInput();
+        }
+
     }
     else {
         startFork();
@@ -154,6 +158,7 @@ void trackHistory() {
         i++;
     }
     newCommand.string[i] = NULL;
+    commands[commandCounter % 20] = newCommand;
     commandCounter++;
 }
 
