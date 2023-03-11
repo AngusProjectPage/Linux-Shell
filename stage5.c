@@ -45,7 +45,6 @@ void loop_shell() {
         display();
         readInput();
         parseInput();
-        trackHistory();
     } while(strcmp(arguments[0], "exit") != 0 );
 }
 
@@ -63,18 +62,16 @@ void readInput(){
             char c;
             while(c = getchar() != '\n' && c != EOF);
             printf("input should not exceed 512 characters, try again\n");
-        }
-        else {
-            int i = 0;
-            char *token = strtok(buffer, delim);
-            while(token != NULL && i < 49) {
-                arguments[i] = malloc(strlen(token));
-                strcpy(arguments[i], token);
-                token = strtok(NULL, delim);
-                i++;
-            }
-            arguments[i] = NULL;
         } 
+        int i = 0;
+        char *token = strtok(buffer, delim);
+        while(token != NULL && i < 49) {
+            arguments[i] = malloc(strlen(token));
+            strcpy(arguments[i], token);
+            token = strtok(NULL, delim);
+            i++;
+        }
+        arguments[i] = NULL;
     }
 
 void parseInput() {
@@ -101,7 +98,23 @@ void parseInput() {
             arguments[i] = NULL;
             parseInput();
         }
-    } else {
+    } else if (arguments[0][0] == '!') {
+        int commandNum = atoi(&arguments[0][1]);
+        if(commandNum == 0 || commandNum > commandCounter) {
+            printf("Invalid number, commands range from 1 to number of executed commands");
+        } else {
+            int i = 0;
+            previousCommands command = commands[(commandNum-1) % 20];
+            while(command.string[i] != NULL) {
+                arguments[i] = malloc(strlen(command.string[i]));
+                strcpy(arguments[i], command.string[i]);
+                i++;
+            }
+            arguments[i] = NULL;
+            parseInput();
+        }
+    } 
+    else {
         startFork();
     }
 }
@@ -161,14 +174,15 @@ void parseInput() {
     }
 
     void printHistory(){
-    for(int i = 0; i<commandCounter && i<20; i++){
-        printf("%d ", commands[i%20].commandNumber);
-        for(int j = 0; commands[i%20].string[j] != NULL; j++){
-            printf("%s\n", commands[i%20].string[j]);
+        int i = 0;
+        while(commands[i].string != NULL) {
+            printf("%d ", commands[i].commandNumber);
+            for(int j = 0; commands[j].string[j] != NULL; j++){
+                printf("%s\n", commands[i].string[j]);
+            }
         }
     }
 
-}
     int startFork() {
         pid_t pid;
         pid = fork();
