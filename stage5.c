@@ -15,7 +15,7 @@ typedef struct previousCommands {
 
 #define BUFFER_SIZE 512
 char *arguments[50];
-char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace 
+char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
@@ -45,7 +45,8 @@ void loop_shell() {
         display();
         readInput();
         parseInput();
-    } while(strcmp(arguments[0], "exit") != 0 );
+        trackHistory();
+    } while(arguments[0] == NULL || strcmp(arguments[0], "exit") != 0);
 }
 
 void display(){
@@ -66,7 +67,7 @@ void readInput(){
         int i = 0;
         char *token = strtok(buffer, delim);
         while(token != NULL && i < 49) {
-            arguments[i] = malloc(strlen(token));
+            arguments[i] = malloc(strlen(token) + 1);
             strcpy(arguments[i], token);
             token = strtok(NULL, delim);
             i++;
@@ -75,7 +76,7 @@ void readInput(){
     }
 
 void parseInput() {
-    if (feof(stdin) || strcmp(arguments[0], "exit") == 0) { //<CTRL+D> OR "EXIT" to close shell
+    if (feof(stdin)  || arguments[0] == NULL || strcmp(arguments[0], "exit") == 0) { //<CTRL+D> OR "EXIT" to close shell
         setenv("PATH", envPath, 1);
         printf("%s\n", getenv("PATH"));
     } else if (strcmp(arguments[0], "getpath") == 0) {
@@ -174,11 +175,12 @@ void parseInput() {
     }
 
     void printHistory(){
-        int i = 0;
-        while(commands[i].string != NULL) {
+
+        for(int i = 0; i<commandCounter && i <20; i++) {
             printf("%d ", commands[i].commandNumber);
             for(int j = 0; commands[j].string[j] != NULL; j++){
                 printf("%s\n", commands[i].string[j]);
+
             }
         }
     }
