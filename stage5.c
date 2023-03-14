@@ -44,19 +44,23 @@ void loop_shell() {
     do{
         display();
         readInput();
+        printf("Got here\n");
+        fflush(stdout);
+        if(feof(stdin)) {
+            break;
+        } 
         parseInput();
-        trackHistory();
-    } while(arguments[0] == NULL || strcmp(arguments[0], "exit") != 0);
+        //trackHistory();
+    } while(strcmp(arguments[0], "exit") != 0);
 }
 
-void display(){
+void display() {
     char cwd[256];
     getcwd(cwd, 256);
     printf("%s>>> ", cwd);
 }
 
 void readInput(){
-    char *c;
     char *t;
         t = fgets(buffer, BUFFER_SIZE, stdin);
         if(buffer[strlen(buffer) - 1] != '\n' && !feof(stdin)) {
@@ -65,26 +69,34 @@ void readInput(){
             printf("input should not exceed 512 characters, try again\n");
         } 
         int i = 0;
+        printf("Got here\n");
+        fflush(stdout);
         char *token = strtok(buffer, delim);
         while(token != NULL && i < 49) {
             arguments[i] = malloc(strlen(token) + 1);
+            printf("%s", arguments[0]);
             strcpy(arguments[i], token);
             token = strtok(NULL, delim);
             i++;
         }
         arguments[i] = NULL;
+        printf("Got here\n");
+        fflush(stdout);
+        
     }
 
 void parseInput() {
-    if (feof(stdin)  || arguments[0] == NULL || strcmp(arguments[0], "exit") == 0) { //<CTRL+D> OR "EXIT" to close shell
+        printf("Got here\n");
+        fflush(stdout);
+    if (feof(stdin) || strcmp(arguments[0], "exit") == 0) { //<CTRL+D> OR "EXIT" to close shell
         setenv("PATH", envPath, 1);
-        printf("%s\n", getenv("PATH"));
     } else if (strcmp(arguments[0], "getpath") == 0) {
         getPath();
     } else if (strcmp(arguments[0], "setpath") == 0) {
         setPath();
     } else if (strcmp(arguments[0], "cd") == 0) {
-        changeDirectory();
+        changeDirectory();            printf("Got here\n");
+    fflush(stdout);
     } else if (strcmp(arguments[0], "!!") == 0) {
         if (commandCounter == 0) {
             printf("No commands in history");
@@ -114,8 +126,7 @@ void parseInput() {
             arguments[i] = NULL;
             parseInput();
         }
-    } 
-    else {
+    } else {
         startFork();
     }
 }
