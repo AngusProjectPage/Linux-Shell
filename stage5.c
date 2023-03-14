@@ -44,14 +44,11 @@ void loop_shell() {
     do{
         display();
         readInput();
-        printf("Got here\n");
-        fflush(stdout);
         if(feof(stdin)) {
             break;
         } 
         parseInput();
-        //trackHistory();
-    } while(strcmp(arguments[0], "exit") != 0);
+    } while(arguments[0] == NULL || strcmp(arguments[0], "exit") != 0);
 }
 
 void display() {
@@ -69,8 +66,6 @@ void readInput(){
             printf("input should not exceed 512 characters, try again\n");
         } 
         int i = 0;
-        printf("Got here\n");
-        fflush(stdout);
         char *token = strtok(buffer, delim);
         while(token != NULL && i < 49) {
             arguments[i] = malloc(strlen(token) + 1);
@@ -80,56 +75,60 @@ void readInput(){
             i++;
         }
         arguments[i] = NULL;
-        printf("Got here\n");
-        fflush(stdout);
-        
     }
 
 void parseInput() {
-        printf("Got here\n");
-        fflush(stdout);
-    if (feof(stdin) || strcmp(arguments[0], "exit") == 0) { //<CTRL+D> OR "EXIT" to close shell
-        setenv("PATH", envPath, 1);
-    } else if (strcmp(arguments[0], "getpath") == 0) {
-        getPath();
-    } else if (strcmp(arguments[0], "setpath") == 0) {
-        setPath();
-    } else if (strcmp(arguments[0], "cd") == 0) {
-        changeDirectory();            printf("Got here\n");
-    fflush(stdout);
-    } else if (strcmp(arguments[0], "!!") == 0) {
-        if (commandCounter == 0) {
-            printf("No commands in history");
-        } else {
-            int i = 0;
-            previousCommands command = commands[(commandCounter - 1) % 20];
-            while (command.string[i] != NULL) {
-                arguments[i] = malloc(strlen(command.string[i]));
-                strcpy(arguments[i], command.string[i]);
-                i++;
+    if(arguments[0] != NULL) {
+        if (feof(stdin) || strcmp(arguments[0], "exit") == 0) { //<CTRL+D> OR "EXIT" to close shell
+            setenv("PATH", envPath, 1);
+        } else if (strcmp(arguments[0], "getpath") == 0) {
+            getPath();
+            trackHistory();
+        } else if (strcmp(arguments[0], "setpath") == 0) {
+            setPath();
+            trackHistory();
+        } else if (strcmp(arguments[0], "cd") == 0) {
+            changeDirectory();    
+            trackHistory();        
+        } else if (strcmp(arguments[0], "!!") == 0) {
+            if (commandCounter == 0) {
+                printf("No commands in history");
+            } else {
+                int i = 0;
+                previousCommands command = commands[(commandCounter - 1) % 20];
+                while (command.string[i] != NULL) {
+                    arguments[i] = malloc(strlen(command.string[i]));
+                    strcpy(arguments[i], command.string[i]);
+                    i++;
+                }
+                arguments[i] = NULL;
+                parseInput();
             }
-            arguments[i] = NULL;
-            parseInput();
-        }
-    } else if (arguments[0][0] == '!') {
-        int commandNum = atoi(&arguments[0][1]);
-        if(commandNum == 0 || commandNum > commandCounter) {
-            printf("Invalid number, commands range from 1 to number of executed commands");
-        } else {
-            int i = 0;
-            previousCommands command = commands[(commandNum-1) % 20];
-            while(command.string[i] != NULL) {
-                arguments[i] = malloc(strlen(command.string[i]));
-                strcpy(arguments[i], command.string[i]);
-                i++;
+        } else if (arguments[0][0] == '!') {
+            int commandNum = atoi(&arguments[0][1]);
+            if(commandNum == 0 || commandNum > commandCounter) {
+                printf("Invalid number, commands range from 1 to number of executed commands");
+            } else {
+                int i = 0;
+                previousCommands command = commands[(commandNum-1) % 20];
+                while(command.string[i] != NULL) {
+                    arguments[i] = malloc(strlen(command.string[i]));
+                    strcpy(arguments[i], command.string[i]);
+                    i++;
+                }
+                arguments[i] = NULL;
+                parseInput();
             }
-            arguments[i] = NULL;
-            parseInput();
+            } else if(strcmp(arguments[0], "history") == 0) {
+                printHistory();
+            } else {
+                printf("Made it");
+                fflush(stdout);
+                trackHistory();
+                startFork();
+            }
         }
-    } else {
-        startFork();
     }
-}
 
 
     void getPath() {
@@ -175,9 +174,6 @@ void parseInput() {
         while (arguments[i] != NULL) {
             newCommand.string[i] = malloc(strlen(arguments[i]) + 1);
             strcpy(newCommand.string[i], arguments[i]);
-            if(strcmp(arguments[0], "history") == 0) {
-                printHistory();
-            }
             i++;
         }
         newCommand.string[i] = NULL;
@@ -186,12 +182,10 @@ void parseInput() {
     }
 
     void printHistory(){
-
         for(int i = 0; i<commandCounter && i <20; i++) {
             printf("%d ", commands[i].commandNumber);
             for(int j = 0; commands[j].string[j] != NULL; j++){
                 printf("%s\n", commands[i].string[j]);
-
             }
         }
     }
