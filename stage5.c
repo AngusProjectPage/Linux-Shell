@@ -122,8 +122,7 @@ void parseInput() {
             } else if(strcmp(arguments[0], "history") == 0) {
                 printHistory();
             } else {
-                printf("Made it");
-                fflush(stdout);
+
                 trackHistory();
                 startFork();
             }
@@ -181,16 +180,24 @@ void parseInput() {
         commandCounter++;
     }
 
-    void printHistory(){
-        for(int i = 0; i<commandCounter && i <20; i++) {
-            printf("%d ", commands[i].commandNumber);
-            for(int j = 0; commands[j].string[j] != NULL; j++){
-                printf("%s\n", commands[i].string[j]);
-            }
-        }
+void printHistory() {
+    int i, start = 0;
+    if (commandCounter > 20) {
+        start = commandCounter % 20;
     }
+    for (i = start; i < commandCounter; i++) {
+        printf("%d ", commands[i % 20].commandNumber);
+        int j = 0;
+        while (commands[i % 20].string[j] != NULL) {
+            printf("%s ", commands[i % 20].string[j]);
+            j++;
+        }
+        printf("\n");
+    }
+}
 
-    int startFork() {
+
+int startFork() {
         pid_t pid;
         pid = fork();
         if (pid < 0) {
