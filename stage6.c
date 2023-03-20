@@ -130,7 +130,6 @@ void parseInput() {
         }
     }
 
-
     void getPath() {
         if (arguments[1] == NULL) {
             printf("Please enter a path \n");
@@ -246,23 +245,34 @@ void loadHistory() {
         printf("Error opening file");
         exit(1);
     }
-    fgets(buffer, 512, fp);
-
-    // Need to update code here
-    int i, start = 0;
-    if (commandCounter > 20) {
-        start = commandCounter % 20;
-    }
-    for(int i = start; i < commandCounter; i++) {
-        int j = 0;
-        fprintf(fp, "%d ", commands[i % 20].commandNumber);
-        while (commands[i % 20].string[j] != NULL) {
-            fprintf(fp, "%s ", commands[i % 20].string[j]);
-            j++;
+    while(fgets(buffer, BUFFER_SIZE, fp)) {
+        previousCommands newCommand = commands[commandCounter % 20];
+        char *token = strtok(buffer, delim);
+        newCommand.commandNumber = atoi(token);
+        token = strtok(NULL, delim);
+        int i = 0;
+        while (token != NULL && i < 49) {
+            newCommand.string[i] = malloc(strlen(token) + 1);
+            strcpy(newCommand.string[i], token);
+            token = strtok(NULL, delim);
+            i++;
         }
-        fprintf(fp, "\n");   
     }
     fclose(fp);
+
+     previousCommands newCommand = commands[commandCounter % 20];
+        newCommand.commandNumber = commandCounter + 1;
+        int i = 0;
+        while (arguments[i] != NULL) {
+            newCommand.string[i] = malloc(strlen(arguments[i]) + 1);
+            strcpy(newCommand.string[i], arguments[i]);
+            i++;
+        }
+        newCommand.string[i] = NULL;
+        commands[commandCounter % 20] = newCommand;
+        commandCounter++;
+
+
 }
 
 
