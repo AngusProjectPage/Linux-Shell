@@ -250,7 +250,7 @@ void loadHistory() {
     while(fgets(line, BUFFER_SIZE, fp) != NULL) {
         previousCommands newCommand = commands[commandCounter % 20];
         char *token = strtok(line, delim);
-        newCommand.commandNumber = strtol(token);
+        newCommand.commandNumber = atoi(token);
         printf("%d", commands[0].commandNumber);
         token = strtok(NULL, delim);
         int i = 0;
