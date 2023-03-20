@@ -38,6 +38,13 @@ void home(){
     else{
         printf("invalid");
     }
+    if (access(".hist_list", F_OK) == 0) {
+        //Load
+    } else {
+        //Initialise history file
+        FILE *fp;
+        fp = fopen (".hist_list", "mode");
+    }
 }
 
 void loop_shell() {
