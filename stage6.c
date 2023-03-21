@@ -11,8 +11,6 @@ typedef struct previousCommands {
     char *string[50];
 } previousCommands;
 
-
-
 #define BUFFER_SIZE 512
 char *arguments[50];
 char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace
@@ -21,7 +19,6 @@ char *envPath;
 char *homePath;
 int commandCounter = 0;
 previousCommands commands[20];
-
 
 int main(int argc, char **argv) {
     home();
@@ -35,9 +32,12 @@ void home(){
     if(homePath != NULL){
         chdir(homePath);
     }
-    else{
+    else if(homePath == NULL) {
         printf("invalid");
     }
+    if (access(".hist_list", F_OK) == 0) {
+        loadHistory();
+    } 
 }
 
 void loop_shell() {
@@ -45,6 +45,7 @@ void loop_shell() {
         display();
         readInput();
         if(feof(stdin)) {
+            writeHistory();
             break;
         } 
         parseInput();
@@ -81,6 +82,7 @@ void parseInput() {
     if(arguments[0] != NULL) {
         if (feof(stdin) || strcmp(arguments[0], "exit") == 0) { //<CTRL+D> OR "EXIT" to close shell
             setenv("PATH", envPath, 1);
+            writeHistory();
         } else if (strcmp(arguments[0], "getpath") == 0) {
             getPath();
             trackHistory();
@@ -122,13 +124,11 @@ void parseInput() {
             } else if(strcmp(arguments[0], "history") == 0) {
                 printHistory();
             } else {
-
                 trackHistory();
                 startFork();
             }
         }
     }
-
 
     void getPath() {
         if (arguments[1] == NULL) {
@@ -214,5 +214,54 @@ int startFork() {
             return 0;
         }
     }
+
+void writeHistory() {
+    FILE *fp;
+    fp = fopen(".hist_list", "w");
+    if(fp == NULL) {
+        printf("Error opening file");
+        exit(1);
+    }
+    int start = 0;
+    if (commandCounter > 20) {
+        start = commandCounter % 20;
+    }
+    for(int i = start; i < commandCounter; i++) {
+        int j = 0;
+        fprintf(fp, "%d ", commands[i % 20].commandNumber);
+        while (commands[i % 20].string[j] != NULL) {
+            fprintf(fp, "%s ", commands[i % 20].string[j]);
+            j++;
+        }
+        fprintf(fp, "\n");
+    }
+    fclose(fp);
+}
+
+void loadHistory() {
+    FILE *fp = fopen(".hist_list", "r");
+    if (fp == NULL) {
+        printf("Error opening file\n");
+        exit(1);
+    }
+
+    char line[BUFFER_SIZE];
+    int i = 0;
+    while (fgets(line, BUFFER_SIZE, fp) != NULL) {
+        int j = 0;
+        char *token = strtok(line, delim);
+        commands[i].commandNumber = atoi(token);
+        token = strtok(NULL, delim);
+        while (token != NULL) {
+            commands[i].string[j] = malloc(strlen(token) + 1);
+            strcpy(commands[i].string[j], token);
+            token = strtok(NULL, delim);
+            j++;
+        }
+        i++;
+    }
+    commandCounter = i;
+    //fclose(fp);
+}
 
 
