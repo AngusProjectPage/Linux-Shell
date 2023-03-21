@@ -222,7 +222,7 @@ void writeHistory() {
         printf("Error opening file");
         exit(1);
     }
-    int i, start = 0;
+    int start = 0;
     if (commandCounter > 20) {
         start = commandCounter % 20;
     }
@@ -238,7 +238,6 @@ void writeHistory() {
     fclose(fp);
 }
 
-
 void loadHistory() {
     FILE *fp = fopen(".hist_list", "r");
     if (fp == NULL) {
@@ -250,21 +249,19 @@ void loadHistory() {
     int i = 0;
     while (fgets(line, BUFFER_SIZE, fp) != NULL) {
         int j = 0;
-        char *token = strtok(line, " ");
+        char *token = strtok(line, delim);
         commands[i].commandNumber = atoi(token);
-        token = strtok(NULL, " ");
+        token = strtok(NULL, delim);
         while (token != NULL) {
             commands[i].string[j] = malloc(strlen(token) + 1);
             strcpy(commands[i].string[j], token);
-            token = strtok(NULL, " ");
+            token = strtok(NULL, delim);
             j++;
         }
         i++;
     }
-
     commandCounter = i;
-
-    fclose(fp);
+    //fclose(fp);
 }
 
 
