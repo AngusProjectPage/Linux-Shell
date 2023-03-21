@@ -32,7 +32,7 @@ void home(){
     if(homePath != NULL){
         chdir(homePath);
     }
-    else{
+    else if(homePath == NULL) {
         printf("invalid");
     }
     if (access(".hist_list", F_OK) == 0) {
@@ -242,26 +242,26 @@ void writeHistory() {
 void loadHistory() {
     char line[BUFFER_SIZE];
     FILE *fp;
+    int lineNum = 0;
     fp = fopen(".hist_list", "r");
     if(fp == NULL) {
         printf("Error opening file");
         exit(1);
     }
-    while(fgets(line, BUFFER_SIZE, fp) != NULL) {
-        previousCommands newCommand = commands[commandCounter % 20];
-        char *token = strtok(line, delim);
-        newCommand.commandNumber = atoi(token);
-        printf("%d", commands[0].commandNumber);
-        token = strtok(NULL, delim);
+
+    while (fgets(line, 512, fp) != NULL) {
         int i = 0;
-        while (token != NULL && i < 49) {
-            newCommand.string[i] = malloc(strlen(token) + 1);
-            strcpy(newCommand.string[i], token);
-            token = strtok(NULL, delim);
-            i++;
+        char *token = strtok(line, " ");
+        commands[lineNum].commandNumber = atoi(token);
+        while (token != NULL) {
+            token = strtok(NULL, " ");
+            if (token != NULL) {
+                commands[lineNum].string[i] = malloc(strlen(token) + 1);
+                strcpy(commands[lineNum].string[i], token);
+                i++;
+            }
         }
-        newCommand.string[i] = NULL;
-        commandCounter++;
+        lineNum++;
     }
     fclose(fp);
 }
