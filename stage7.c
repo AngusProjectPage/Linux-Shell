@@ -18,6 +18,7 @@ char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
 char *aliases[][2];
+int aliasesSize = 0;
 int commandCounter = 0;
 previousCommands commands[20];
 
@@ -124,11 +125,14 @@ void parseInput() {
             }
             } else if(strcmp(arguments[0], "history") == 0) {
                 printHistory();
-            } else {
+            } else if(strcmp(arguments[0], "alias") == 0) {
+                insertAlias();
+            }
+            else {
                 trackHistory();
                 startFork();
             }
-        }
+        
     }
 
     void getPath() {
@@ -266,7 +270,17 @@ void loadHistory() {
 }
 
 void insertAlias() {
-
+    if(arguments[1] != NULL && arguments[2] != NULL) {
+        strdup(aliases[0][0], arguments[1]);
+        strdup(aliases[0][1], arguments[2]);
+    } else if(arguments[2] == NULL) {
+        printf("Alias must be entered in format 'alias <command> <newCommandName>'");
+    }
+    else {
+        for(int i=0; i<aliasesSize; i++) {
+            printf("%s %s\n", aliases[i][0], aliases[i][1]);
+        }
+    }
 }
 
 
