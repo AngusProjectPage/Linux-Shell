@@ -17,6 +17,7 @@ char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
+char *aliases[][2];
 int commandCounter = 0;
 previousCommands commands[20];
 
@@ -262,6 +263,10 @@ void loadHistory() {
     }
     commandCounter = i;
     //fclose(fp);
+}
+
+void insertAlias() {
+
 }
 
 

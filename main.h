@@ -9,6 +9,7 @@ void loop_shell();
     void printHistory();
 	void writeHistory();
 	void loadHistory();
+	void insertAlias();
 //	While the command is a history invocation or alias then replace it with the
 //	appropriate command from history or the aliased command respectively
 	void getPath();
