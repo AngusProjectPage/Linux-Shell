@@ -42,11 +42,9 @@ void home(){
     else if(homePath == NULL) {
         printf("invalid");
     }
-    /*
     if (access(".hist_list", F_OK) == 0) {
         loadHistory();
     } 
-    */
 }
 
 void loop_shell() {
@@ -79,7 +77,6 @@ void readInput(){
         char *token = strtok(buffer, delim);
         while(token != NULL && i < 49) {
             arguments[i] = malloc(strlen(token) + 1);
-            printf("%s", arguments[0]);
             strcpy(arguments[i], token);
             token = strtok(NULL, delim);
             i++;
@@ -250,7 +247,6 @@ void writeHistory() {
     fclose(fp);
 }
 
-/*
 void loadHistory() {
     FILE *fp = fopen(".hist_list", "r");
     if (fp == NULL) {
@@ -276,7 +272,6 @@ void loadHistory() {
     commandCounter = i;
     //fclose(fp);
 }
-*/
 
 void insertAlias() {
     if(arguments[1] != NULL && arguments[2] != NULL) {
@@ -289,7 +284,7 @@ void insertAlias() {
             commandNameCounter++;
             argumentsCounter++;
         }
-    } else if(arguments[2] == NULL) {
+    } else if(arguments[1] != NULL && arguments[2] == NULL) {
         printf("Alias must be entered in format 'alias <command> <newCommandName>'\n");
     }
     else {
