@@ -276,7 +276,7 @@ void loadHistory() {
 void insertAlias() {
     if(arguments[1] != NULL && arguments[2] != NULL) {
         aliasStruct newAlias = aliases[aliasCounter];
-        newAlias.aliasName = strdup(arguments[0]);
+        newAlias.aliasName = strdup(arguments[1]);
         int argumentsCounter = 2;
         int commandNameCounter = 0;
         while(arguments[argumentsCounter] != NULL) {
@@ -284,11 +284,14 @@ void insertAlias() {
             commandNameCounter++;
             argumentsCounter++;
         }
+        aliases[aliasCounter] = newAlias;
+        aliasCounter++;
     } else if(arguments[1] != NULL && arguments[2] == NULL) {
         printf("Alias must be entered in format 'alias <command> <newCommandName>'\n");
     }
     else {
-        printf("%s", aliases[0].aliasName);
+        while()
+        printf("%s %s", aliases[0].aliasName, aliases[0].commandName[0]);
     }
 }
 
