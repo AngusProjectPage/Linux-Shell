@@ -288,9 +288,7 @@ void insertAlias() {
         printf("Alias must be entered in format 'alias <command> <newCommandName>'\n");
     }
     else {
-        for(int i=0; i<aliasCounter; i++) {
-            printf("%s %s\n", aliases->aliasName, aliases->commandName);
-        }
+        printf("%s", aliases[0].aliasName);
     }
 }
 
