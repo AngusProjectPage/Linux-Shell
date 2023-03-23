@@ -131,6 +131,8 @@ void parseInput() {
                 printHistory();
             } else if(strcmp(arguments[0], "alias") == 0) {
                 insertAlias();
+            } else if(strcmp(arguments[0], "unalias") == 0){
+                removeAlias();
             }
             else {
                 trackHistory();
@@ -300,5 +302,31 @@ void insertAlias() {
         }
     }
 }
+void removeAlias() {
+    if (arguments[1] == NULL) {
+        printf("Please enter an alias name\n");
+    } else {
+        int i;
+        int  found = 0;
+        for (i = 0; i < aliasCounter; i++) {
+            if (strcmp(aliases[i].aliasName, arguments[1]) == 0) {
+                free(aliases[i].aliasName);
+                free(aliases[i].commandName[0]);
+                while (i < aliasCounter - 1) {
+                    aliases[i] = aliases[i + 1];
+                    i++;
+                }
+                aliasCounter--;
+                found = 1;
+                break;
+            }
+        }
 
+        if (found) {
+            printf("Alias '%s' removed\n", arguments[1]);
+        } else {
+            printf("Alias '%s' not found\n", arguments[1]);
+        }
+    }
 
+}
