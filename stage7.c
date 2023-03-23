@@ -11,16 +11,21 @@ typedef struct previousCommands {
     char *string[50];
 } previousCommands;
 
+typedef struct aliasStruct{
+    char *aliasName;
+    char *commandName[50];
+} aliasStruct;
+
 #define BUFFER_SIZE 512
 char *arguments[50];
 char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
-char *aliases[][2];
-int aliasesSize = 0;
+int aliasCounter = 0;
 int commandCounter = 0;
 previousCommands commands[20];
+aliasStruct aliases[10];
 
 int main(int argc, char **argv) {
     home();
@@ -37,9 +42,11 @@ void home(){
     else if(homePath == NULL) {
         printf("invalid");
     }
+    /*
     if (access(".hist_list", F_OK) == 0) {
         loadHistory();
     } 
+    */
 }
 
 void loop_shell() {
@@ -132,7 +139,7 @@ void parseInput() {
                 trackHistory();
                 startFork();
             }
-        
+        }
     }
 
     void getPath() {
@@ -243,6 +250,7 @@ void writeHistory() {
     fclose(fp);
 }
 
+/*
 void loadHistory() {
     FILE *fp = fopen(".hist_list", "r");
     if (fp == NULL) {
@@ -268,17 +276,25 @@ void loadHistory() {
     commandCounter = i;
     //fclose(fp);
 }
+*/
 
 void insertAlias() {
     if(arguments[1] != NULL && arguments[2] != NULL) {
-        strdup(aliases[0][0], arguments[1]);
-        strdup(aliases[0][1], arguments[2]);
+        aliasStruct newAlias = aliases[aliasCounter];
+        newAlias.aliasName = strdup(arguments[0]);
+        int argumentsCounter = 2;
+        int commandNameCounter = 0;
+        while(arguments[argumentsCounter] != NULL) {
+            newAlias.commandName[commandNameCounter] = strdup(arguments[argumentsCounter]);
+            commandNameCounter++;
+            argumentsCounter++;
+        }
     } else if(arguments[2] == NULL) {
-        printf("Alias must be entered in format 'alias <command> <newCommandName>'");
+        printf("Alias must be entered in format 'alias <command> <newCommandName>'\n");
     }
     else {
-        for(int i=0; i<aliasesSize; i++) {
-            printf("%s %s\n", aliases[i][0], aliases[i][1]);
+        for(int i=0; i<aliasCounter; i++) {
+            printf("%s %s\n", aliases->aliasName, aliases->commandName);
         }
     }
 }
