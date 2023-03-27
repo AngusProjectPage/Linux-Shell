@@ -136,6 +136,7 @@ void parseInput() {
             }
             else {
                 trackHistory();
+                invokeAlias();
                 startFork();
             }
         }
@@ -292,14 +293,7 @@ void insertAlias() {
         printf("Alias must be entered in format 'alias <command> <newCommandName>'\n");
     }
     else {
-        for(int i=0; i<aliasCounter; i++) {
-            printf("Alias name: %s   Command Name: ", aliases[i].aliasName);
-            int commandNameCounter = 0;
-            while(aliases[aliasCounter].commandName != NULL) {
-                printf("%s ", aliases[i].commandName[commandNameCounter]);
-            }
-            printf("/n");
-        }
+
     }
 }
 void removeAlias() {
@@ -330,3 +324,19 @@ void removeAlias() {
     }
 
 }
+
+void invokeAlias(){
+    for (int i = 0; i < aliasCounter; i++) {
+            if (strcmp(arguments[0], aliases[i].aliasName) == 0) {
+                int j = 0;
+                while (aliases[i].commandName[j] != NULL && j < 49) {
+                    arguments[j] = malloc(strlen(aliases[i].commandName[j]) + 1);
+                    strcpy(arguments[j], aliases[i].commandName[j]);
+                    j++;
+                }
+                arguments[j] = NULL;
+
+
+            }
+        }
+    }
