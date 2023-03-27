@@ -277,7 +277,10 @@ void loadHistory() {
 }
 
 void insertAlias() {
-    if(arguments[1] != NULL && arguments[2] != NULL) {
+    if(aliasCounter == 10) {
+        printf("Max number of aliases have been entered please remove before inserting");
+    }
+    else if(arguments[1] != NULL && arguments[2] != NULL) {
         aliasStruct newAlias = aliases[aliasCounter];
         newAlias.aliasName = strdup(arguments[1]);
         int argumentsCounter = 2;
@@ -292,8 +295,20 @@ void insertAlias() {
     } else if(arguments[1] != NULL && arguments[2] == NULL) {
         printf("Alias must be entered in format 'alias <command> <newCommandName>'\n");
     }
-    else {
-
+    else if(aliasCounter != 0) {
+        for(int i=0; i<10; i++) {
+            if(aliases[i].aliasName != NULL) {
+                int counter = 0;
+                printf("Alias name: %s, Command: ", aliases[i].aliasName);
+                while(aliases[i].commandName[counter] != NULL) {
+                    printf("%s ", aliases[i].commandName[counter]);
+                    counter++;
+                }
+                printf("\n");
+            }
+        }
+    } else {
+        printf("There are currently no set aliases\n");
     }
 }
 void removeAlias() {
@@ -302,20 +317,21 @@ void removeAlias() {
     } else {
         int i;
         int  found = 0;
-        for (i = 0; i < aliasCounter; i++) {
-            if (strcmp(aliases[i].aliasName, arguments[1]) == 0) {
-                free(aliases[i].aliasName);
-                free(aliases[i].commandName[0]);
-                while (i < aliasCounter - 1) {
-                    aliases[i] = aliases[i + 1];
-                    i++;
+        for (i = 0; i < 10; i++) {
+            if(aliases[i].aliasName != NULL) {
+                if (strcmp(aliases[i].aliasName, arguments[1]) == 0) {
+                    free(aliases[i].aliasName);
+                    free(aliases[i].commandName[0]);
+                    while (i < aliasCounter - 1) {
+                        aliases[i] = aliases[i + 1];
+                        i++;
+                    }
+                    aliasCounter--;
+                    found = 1;
+                    break;
                 }
-                aliasCounter--;
-                found = 1;
-                break;
             }
         }
-
         if (found) {
             printf("Alias '%s' removed\n", arguments[1]);
         } else {
@@ -327,16 +343,14 @@ void removeAlias() {
 
 void invokeAlias(){
     for (int i = 0; i < aliasCounter; i++) {
-            if (strcmp(arguments[0], aliases[i].aliasName) == 0) {
-                int j = 0;
-                while (aliases[i].commandName[j] != NULL && j < 49) {
-                    arguments[j] = malloc(strlen(aliases[i].commandName[j]) + 1);
-                    strcpy(arguments[j], aliases[i].commandName[j]);
-                    j++;
-                }
-                arguments[j] = NULL;
-
-
+        if (strcmp(arguments[0], aliases[i].aliasName) == 0) {
+            int j = 0;
+            while (aliases[i].commandName[j] != NULL && j < 49) {
+                arguments[j] = malloc(strlen(aliases[i].commandName[j]) + 1);
+                strcpy(arguments[j], aliases[i].commandName[j]);
+                j++;
             }
+            arguments[j] = NULL;
         }
     }
+}

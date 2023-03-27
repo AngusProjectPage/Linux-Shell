@@ -1,27 +1,19 @@
 void home();
-//Load history
-//Load aliases
 void loop_shell();
 	void display();
 	void readInput();
 	void parseInput();
-	void trackHistory();
-    void printHistory();
-	void writeHistory();
-	void loadHistory();
-	void insertAlias();
-    void removeAlias();
-    void invokeAlias();
-//	While the command is a history invocation or alias then replace it with the
-//	appropriate command from history or the aliased command respectively
-	void getPath();
-	void setPath();
-	void changeDirectory();
-	int startFork();
-//Save history
-//Save aliases
-//Restore original path
-//Exit
+void trackHistory();
+void printHistory();
+void writeHistory();
+void loadHistory();
+void insertAlias();
+void removeAlias();
+void invokeAlias();
+void getPath();
+void setPath();
+void changeDirectory();
+int startFork();
 
 
 
