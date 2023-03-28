@@ -11,14 +11,21 @@ typedef struct previousCommands {
     char *string[50];
 } previousCommands;
 
+typedef struct aliasStruct{
+    char *aliasName;
+    char *commandName[50];
+} aliasStruct;
+
 #define BUFFER_SIZE 512
 char *arguments[50];
-char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace
+char delim[] = " \n\t<>|&;"; // Each token to be split by whitespace
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
+int aliasCounter = 0;
 int commandCounter = 0;
 previousCommands commands[20];
+aliasStruct aliases[10];
 
 int main(int argc, char **argv) {
     home();
@@ -59,18 +66,16 @@ void display() {
 }
 
 void readInput(){
-    char *t;
-        t = fgets(buffer, BUFFER_SIZE, stdin);
+        fgets(buffer, BUFFER_SIZE, stdin);
         if(buffer[strlen(buffer) - 1] != '\n' && !feof(stdin)) {
             char c;
-            while(c = getchar() != '\n' && c != EOF);
+            while((c = getchar() != '\n') && c != EOF);
             printf("input should not exceed 512 characters, try again\n");
         } 
         int i = 0;
         char *token = strtok(buffer, delim);
         while(token != NULL && i < 49) {
             arguments[i] = malloc(strlen(token) + 1);
-            printf("%s", arguments[0]);
             strcpy(arguments[i], token);
             token = strtok(NULL, delim);
             i++;
@@ -122,9 +127,16 @@ void parseInput() {
                 parseInput();
             }
             } else if(strcmp(arguments[0], "history") == 0) {
-                printHistory();
-            } else {
                 trackHistory();
+                printHistory();
+            } else if(strcmp(arguments[0], "alias") == 0) {
+                insertAlias();
+            } else if(strcmp(arguments[0], "unalias") == 0){
+                removeAlias();
+            }
+            else {
+                trackHistory();
+                invokeAlias();
                 startFork();
             }
         }
@@ -132,13 +144,9 @@ void parseInput() {
 
     void getPath() {
         if (arguments[1] == NULL) {
-            printf("Please enter a path \n");
-        } else if (getenv(arguments[1]) == NULL) {
-            fprintf(stderr, "Could not find environment variable '%s'\n", arguments[1]);
-        } else if (arguments[2] != NULL) {
-            printf("Too many arguments\n");
+            printf("%s\n", getenv("PATH"));
         } else {
-            printf("%s\n", getenv(arguments[1]));
+            printf("Too many arguments\n"); 
         }
     }
 
@@ -146,7 +154,7 @@ void parseInput() {
         if (arguments[2] != NULL) {
             fprintf(stderr, "Function should take only one parameter\n");
         } else if (access(arguments[1], F_OK == -1)) {
-            fprintf(stderr, "Path '%s' does not exist\n", arguments[1]);
+            fprintf(stderr, "Path '%s' does not exist, please enter in a path\n", arguments[1]);
         } else if (setenv("PATH", arguments[1], 1) == 0) {
             printf("Path is now %s\n", arguments[1]);
         } else {
@@ -208,11 +216,10 @@ int startFork() {
                 perror(arguments[0]);
                 exit(1);
             }
-        } else { /* parent process */
+        }   /* parent process */
             /* parent will wait for the child process to complete*/
             wait(NULL);
             return 0;
-        }
     }
 
 void writeHistory() {
@@ -264,4 +271,81 @@ void loadHistory() {
     //fclose(fp);
 }
 
+void insertAlias() {
+    if(aliasCounter == 10) {
+        printf("Max number of aliases have been entered please remove before inserting");
+    }
+    else if(arguments[1] != NULL && arguments[2] != NULL) {
+        aliasStruct newAlias = aliases[aliasCounter];
+        newAlias.aliasName = strdup(arguments[1]);
+        int argumentsCounter = 2;
+        int commandNameCounter = 0;
+        while(arguments[argumentsCounter] != NULL) {
+            newAlias.commandName[commandNameCounter] = strdup(arguments[argumentsCounter]);
+            commandNameCounter++;
+            argumentsCounter++;
+        }
+        aliases[aliasCounter] = newAlias;
+        aliasCounter++;
+    } else if(arguments[1] != NULL && arguments[2] == NULL) {
+        printf("Alias must be entered in format 'alias <command> <newCommandName>'\n");
+    }
+    else if(aliasCounter != 0) {
+        for(int i=0; i<10; i++) {
+            if(aliases[i].aliasName != NULL) {
+                int counter = 0;
+                printf("Alias name: %s, Command: ", aliases[i].aliasName);
+                while(aliases[i].commandName[counter] != NULL) {
+                    printf("%s ", aliases[i].commandName[counter]);
+                    counter++;
+                }
+                printf("\n");
+            }
+        }
+    } else {
+        printf("There are currently no set aliases\n");
+    }
+}
+void removeAlias() {
+    if (arguments[1] == NULL) {
+        printf("Please enter an alias name\n");
+    } else {
+        int i;
+        int  found = 0;
+        for (i = 0; i < 10; i++) {
+            if(aliases[i].aliasName != NULL) {
+                if (strcmp(aliases[i].aliasName, arguments[1]) == 0) {
+                    free(aliases[i].aliasName);
+                    free(aliases[i].commandName[0]);
+                    while (i < aliasCounter - 1) {
+                        aliases[i] = aliases[i + 1];
+                        i++;
+                    }
+                    aliasCounter--;
+                    found = 1;
+                    break;
+                }
+            }
+        }
+        if (found) {
+            printf("Alias '%s' removed\n", arguments[1]);
+        } else {
+            printf("Alias '%s' not found\n", arguments[1]);
+        }
+    }
 
+}
+
+void invokeAlias(){
+    for (int i = 0; i < aliasCounter; i++) {
+        if (strcmp(arguments[0], aliases[i].aliasName) == 0) {
+            int j = 0;
+            while (aliases[i].commandName[j] != NULL && j < 49) {
+                arguments[j] = malloc(strlen(aliases[i].commandName[j]) + 1);
+                strcpy(arguments[j], aliases[i].commandName[j]);
+                j++;
+            }
+            arguments[j] = NULL;
+        }
+    }
+}
