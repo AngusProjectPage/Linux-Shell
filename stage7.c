@@ -18,7 +18,7 @@ typedef struct aliasStruct{
 
 #define BUFFER_SIZE 512
 char *arguments[50];
-char delim[] = " \n\t()<>|&;"; // Each token to be split by whitespace
+char delim[] = " \n\t<>|&;"; // Each token to be split by whitespace
 char buffer[BUFFER_SIZE];
 char *envPath;
 char *homePath;
@@ -66,11 +66,10 @@ void display() {
 }
 
 void readInput(){
-    char *t;
-        t = fgets(buffer, BUFFER_SIZE, stdin);
+        fgets(buffer, BUFFER_SIZE, stdin);
         if(buffer[strlen(buffer) - 1] != '\n' && !feof(stdin)) {
             char c;
-            while(c = getchar() != '\n' && c != EOF);
+            while((c = getchar() != '\n') && c != EOF);
             printf("input should not exceed 512 characters, try again\n");
         } 
         int i = 0;
@@ -128,6 +127,7 @@ void parseInput() {
                 parseInput();
             }
             } else if(strcmp(arguments[0], "history") == 0) {
+                trackHistory();
                 printHistory();
             } else if(strcmp(arguments[0], "alias") == 0) {
                 insertAlias();
@@ -144,13 +144,9 @@ void parseInput() {
 
     void getPath() {
         if (arguments[1] == NULL) {
-            printf("Please enter a path \n");
-        } else if (getenv(arguments[1]) == NULL) {
-            fprintf(stderr, "Could not find environment variable '%s'\n", arguments[1]);
-        } else if (arguments[2] != NULL) {
-            printf("Too many arguments\n");
+            printf("%s\n", getenv("PATH"));
         } else {
-            printf("%s\n", getenv(arguments[1]));
+            printf("Too many arguments\n"); 
         }
     }
 
@@ -158,7 +154,7 @@ void parseInput() {
         if (arguments[2] != NULL) {
             fprintf(stderr, "Function should take only one parameter\n");
         } else if (access(arguments[1], F_OK == -1)) {
-            fprintf(stderr, "Path '%s' does not exist\n", arguments[1]);
+            fprintf(stderr, "Path '%s' does not exist, please enter in a path\n", arguments[1]);
         } else if (setenv("PATH", arguments[1], 1) == 0) {
             printf("Path is now %s\n", arguments[1]);
         } else {
@@ -220,11 +216,10 @@ int startFork() {
                 perror(arguments[0]);
                 exit(1);
             }
-        } else { /* parent process */
+        }   /* parent process */
             /* parent will wait for the child process to complete*/
             wait(NULL);
             return 0;
-        }
     }
 
 void writeHistory() {
